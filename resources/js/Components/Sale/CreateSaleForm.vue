@@ -3,6 +3,7 @@ import { ref ,reactive} from "vue";
 import { usePage, useForm, router } from "@inertiajs/vue3";
 const page = usePage();
 import { createToaster } from "@meforma/vue-toaster";
+import { parse } from "vue/compiler-sfc";
 
 const showModal=ref(false)
 const toaster = createToaster({ });
@@ -62,6 +63,13 @@ const addProduct = () => {
 
     if(productQtyByKg.value=='' && productQtyByPc.value==''){
         toaster.error('Product Quantity is Required');
+        productQtyByPc.value=0;
+        productQtyByKg.value=0;
+        return ;
+    }else if(!Number.isInteger(productQtyByPc.value)){
+        toaster.error('Product Quantity is Invalid');
+        productQtyByPc.value=0;
+        productQtyByKg.value=0;
         return ;
     }
 
@@ -133,17 +141,6 @@ const calculateTotal=()=>{
     });
 }
 
-const totalOrder=ref(0);
-function totalWorkOrder(){
-    productList.value.forEach((product)=>{
-        totalOrder.value+=parseFloat(product.qty_by_kg);
-    })
-
-    productList.value.forEach((product)=>{
-        totalOrder.value+=parseInt(product.qty_by_pc);
-    })
-}
-
 const form=useForm({
     cus_id:'',
     products:'',
@@ -151,7 +148,6 @@ const form=useForm({
     total_by_pc:'',
     total_by_kg:'',
     payable:'',
-    total_work_order:'',
     created_by:page.props.user.name,
     delivery_date:'',
     delivery_place:'',
@@ -166,14 +162,12 @@ const createInvoice=()=>{
     }else if(productList.value.length==0){
         toaster.error('Product is required');
     }else{
-        totalWorkOrder();
     form.cus_id=customer.id;
     form.products=productList.value;
     form.total=calculate.total;
     form.total_by_pc=calculate.totalByPc;
     form.total_by_kg=calculate.totalByKg;
     form.payable=calculate.payable;
-    form.total_work_order=totalOrder.value;
 
     form.post('create-invoice',{
         onSuccess: () => {
@@ -330,8 +324,8 @@ const createInvoice=()=>{
             </div>
 
             <div class="mt-4">
-                <p>Total Order By Pc: {{ calculate.totalByPc }}</p>
-                <p>Total Order By Kg: {{ calculate.totalByKg }}</p>
+                <p>Total Order By Pc: {{ calculate.totalByPc?calculate.totalByPc:0 }}</p>
+                <p>Total Order By Kg: {{ calculate.totalByKg?calculate.totalByKg.toFixed(2):0 }}</p>
             </div>
 
 

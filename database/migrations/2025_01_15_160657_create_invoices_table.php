@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->integer('total_work_order');
             $table->string('created_by');
             $table->decimal('total',15,2);
             $table->decimal('total_by_kg',15,2);

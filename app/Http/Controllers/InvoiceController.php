@@ -23,7 +23,6 @@ class InvoiceController extends Controller
             $data = [
                 'customer_id' => $request->input('cus_id'),
                 'total' => $request->input('total'),
-                'total_work_order' => $request->input('total_work_order'),
                 'created_by' => $request->input('created_by'),
                 'total_by_pc' => $request->input('total_by_pc'),
                 'total_by_kg' => $request->input('total_by_kg'),
@@ -63,8 +62,7 @@ class InvoiceController extends Controller
             $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
         })->when($request->query('customerId'), function ($query) use ($request) {
             $query->where('customer_id', '=', $request->customerId);
-
-        })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'),function ($query) use ($request){
+        })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'), function ($query) use ($request) {
             $fromDate = date('Y-m-d', strtotime($request->fromDate));
             $toDate = date('Y-m-d', strtotime($request->toDate));
             $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
@@ -73,47 +71,44 @@ class InvoiceController extends Controller
             ->get();
 
         $total = Invoice::when($request->query('fromDate') && $request->query('toDate'), function ($query) use ($request) {
-                $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                $toDate = date('Y-m-d', strtotime($request->toDate));
-                $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-            })->when($request->query('customerId'), function ($query) use ($request) {
-                $query->where('customer_id', '=', $request->customerId);
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->when($request->query('customerId'), function ($query) use ($request) {
+            $query->where('customer_id', '=', $request->customerId);
+        })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'), function ($query) use ($request) {
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->with('customer', 'invoiceProducts.product')
+            ->sum('total');
 
-            })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'),function ($query) use ($request){
-                $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                $toDate = date('Y-m-d', strtotime($request->toDate));
-                $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-            })->with('customer', 'invoiceProducts.product')
-                ->sum('total');
 
+        $totalByKg = Invoice::when($request->query('fromDate') && $request->query('toDate'), function ($query) use ($request) {
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->when($request->query('customerId'), function ($query) use ($request) {
+            $query->where('customer_id', '=', $request->customerId);
+        })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'), function ($query) use ($request) {
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->with('customer', 'invoiceProducts.product')
+            ->sum('total_by_kg');
 
-                $totalByKg = Invoice::when($request->query('fromDate') && $request->query('toDate'), function ($query) use ($request) {
-                    $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                    $toDate = date('Y-m-d', strtotime($request->toDate));
-                    $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-                })->when($request->query('customerId'), function ($query) use ($request) {
-                    $query->where('customer_id', '=', $request->customerId);
-
-                })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'),function ($query) use ($request){
-                    $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                    $toDate = date('Y-m-d', strtotime($request->toDate));
-                    $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-                })->with('customer', 'invoiceProducts.product')
-                    ->sum('total_by_kg');
-
-                    $totalByPc = Invoice::when($request->query('fromDate') && $request->query('toDate'), function ($query) use ($request) {
-                        $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                        $toDate = date('Y-m-d', strtotime($request->toDate));
-                        $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-                    })->when($request->query('customerId'), function ($query) use ($request) {
-                        $query->where('customer_id', '=', $request->customerId);
-
-                    })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'),function ($query) use ($request){
-                        $fromDate = date('Y-m-d', strtotime($request->fromDate));
-                        $toDate = date('Y-m-d', strtotime($request->toDate));
-                        $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
-                    })->with('customer', 'invoiceProducts.product')
-                        ->sum('total_by_pc');
+        $totalByPc = Invoice::when($request->query('fromDate') && $request->query('toDate'), function ($query) use ($request) {
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->when($request->query('customerId'), function ($query) use ($request) {
+            $query->where('customer_id', '=', $request->customerId);
+        })->when($request->query('fromDate') && $request->query('toDate') && $request->query('customerId'), function ($query) use ($request) {
+            $fromDate = date('Y-m-d', strtotime($request->fromDate));
+            $toDate = date('Y-m-d', strtotime($request->toDate));
+            $query->where('customer_id', '=', $request->customerId)->whereDate('created_at', '>=', $fromDate)->whereDate('created_at', '<=', $toDate);
+        })->with('customer', 'invoiceProducts.product')
+            ->sum('total_by_pc');
 
         return Inertia::render('Invoice/InvoiceListPage', [
             'list' => $list,
@@ -138,6 +133,4 @@ class InvoiceController extends Controller
             return redirect()->route('listInvoice')->with(['status' => false, 'message' => 'Something went wrong']);
         }
     }
-
-
 }

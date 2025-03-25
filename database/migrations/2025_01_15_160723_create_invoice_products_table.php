@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')
             ->restrictOnDelete()->cascadeOnUpdate();
             $table->integer('qty_by_pc');
-            $table->integer('qty_by_kg');
+            $table->decimal('qty_by_kg',15,2);
             $table->decimal('rate',15,2);
             $table->decimal('order_price',15,2);
             $table->timestamp('created_at')->useCurrent();

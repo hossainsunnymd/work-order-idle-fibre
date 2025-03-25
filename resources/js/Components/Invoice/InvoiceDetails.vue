@@ -102,11 +102,11 @@ const formatDate = (date) => {
                 <div class="mt-4 border-t pt-4">
                     <div class="flex">
                         <p class="text-xl font-bold mr-2">Total/kg:</p>
-                        <p class="text-xl">{{ parseInt(props.customer.total_by_kg) }}</p>
+                        <p class="text-xl">{{ props.customer.total_by_kg }}</p>
                     </div>
                     <div class="flex">
                         <p class="text-xl font-bold mr-2">Total/pc:</p>
-                        <p class="text-xl">{{ parseInt(props.customer.total_by_pc) }}</p>
+                        <p class="text-xl">{{ props.customer.total_by_pc }}</p>
                     </div>
                     <div>
                         <p ><strong class="text-xl">Note:</strong> {{ props.customer.note }}</p>

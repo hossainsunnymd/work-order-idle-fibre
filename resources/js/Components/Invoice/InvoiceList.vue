@@ -36,9 +36,6 @@ const deleteInvoice = (id) => {
   }
 };
 
-if (page.props.flash.status === true) {
-  toaster.success(page.props.flash.message);
-}
 
 const showDetails = (id) => {
   show.value = !show.value;
